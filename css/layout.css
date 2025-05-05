@@ -1,0 +1,23 @@
+.container {
+    padding: var(--padding);
+    text-align: center;
+  }
+  
+  .mesa-controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .tabs-list {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .tabs-content .card {
+    max-width: 768px;
+    margin: auto;
+  }

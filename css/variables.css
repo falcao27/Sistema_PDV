@@ -1,0 +1,25 @@
+:root {
+    --font-size: 1rem;
+    --padding: 1rem;
+    --modal-width: 90vw;
+    --modal-height: 80vh;
+    --primary-color: #29eb0f;
+    --secondary-color: #6c757d;
+    --accent-color: #29eb0f;
+    --background-color: #121212;
+    --text-color: #e0e0e0;
+    --card-bg-color: #fdfdfd;
+    --card-border-radius: 0.5rem;
+    --card-shadow: 0 4px 8px rgba(255, 255, 255, 0.3);
+    --card-transition: transform 0.3s ease;
+    --card-hover-transform: scale(1.05);
+    --card-title-color: #e0e0e0;
+    --card-price-color: #29eb0f;
+    --modal-bg-color: rgba(255, 255, 255, 0.8);
+    --modal-content-bg-color: #1e1e1e;
+    --close-btn-color: #29eb0f;
+    --close-btn-hover-color: white;
+    --button-bg-color: #29eb0f;
+    --button-hover-bg-color: #29eb0f;
+    --button-text-color: white;
+  }

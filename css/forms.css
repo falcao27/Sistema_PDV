@@ -1,0 +1,26 @@
+input, select, textarea {
+    font-size: var(--font-size);
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--secondary-color);
+    border-radius: 0.25rem;
+    background-color: var(--card-bg-color);
+    color: var(--text-color);
+    margin-bottom: 16px;
+  }
+  
+  .form-group {
+    margin-bottom: 16px;
+  }
+  
+  #formPagamento button, #formPagamentoParcial button {
+    background-color: var(--button-bg-color);
+    color: var(--button-text-color);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  #formPagamento button:hover, #formPagamentoParcial button:hover {
+    background-color: var(--button-hover-bg-color);
+  }

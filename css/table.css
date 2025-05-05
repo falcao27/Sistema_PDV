@@ -1,0 +1,24 @@
+table {
+    width: 100%;
+    margin: 20px 0;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    border: 1px solid var(--secondary-color);
+    padding: 8px;
+    text-align: left;
+  }
+  
+  th {
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+  }
+  
+  #resumoPagamentoParcial h3 {
+    color: var(--primary-color);
+  }
+  
+  #resumoPagamentoParcial p {
+    margin: 0.5rem 0;
+  }

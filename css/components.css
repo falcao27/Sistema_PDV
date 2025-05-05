@@ -1,0 +1,23 @@
+.tabs-list button {
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+  }
+  
+  .tabs-list button.active {
+    background-color: var(--primary-color);
+    color: var(--button-text-color);
+  }
+  
+  .card {
+    background-color: var(--card-bg-color);
+    padding: var(--padding);
+    box-shadow: var(--card-shadow);
+    margin-bottom: var(--padding);
+    border-radius: var(--card-border-radius);
+  }
+  
+  .close-mesa-btn, .pagamento-parcial-btn {
+    max-width: 160px;
+    margin-top: 16px;
+    margin-left: 0;
+  }

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Mobile - Brasa & Fogo</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: #fff;
+            padding: 20px;
+        }
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        a, button {
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            background: #3b82f6;
+            color: #fff;
+            border: 0;
+            border-radius: 8px;
+            padding: 12px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        pre {
+            white-space: pre-wrap;
+            color: #bfdbfe;
+        }
+    </style>
+</head>
+<body>
+    <h1>Brasa & Fogo</h1>
+    <div class="card">
+        <strong>Se voce esta vendo esta tela, o celular acessou o servidor.</strong>
+        <p id="status">Testando API...</p>
+        <pre id="resultado"></pre>
+        <a href="login.html">Abrir login</a>
+        <a href="pedidos.html">Abrir painel</a>
+    </div>
+
+    <script>
+        fetch('/api/state', { cache: 'no-store' })
+            .then((response) => response.json())
+            .then((state) => {
+                document.getElementById('status').textContent = 'API OK';
+                document.getElementById('resultado').textContent = JSON.stringify({
+                    mesas: state.mesas.length,
+                    pedidos: state.pedidos.length,
+                    cupons: state.cupons.length
+                }, null, 2);
+            })
+            .catch((error) => {
+                document.getElementById('status').textContent = 'API falhou';
+                document.getElementById('resultado').textContent = error.message;
+            });
+    </script>
+</body>
+</html>

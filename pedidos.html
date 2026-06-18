@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos - Brasa & Fogo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link href="css/app-ui.css" rel="stylesheet">
+    <script>
+        if (window.tailwind) tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#3B82F6',
+                            dark: '#2563EB'
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; }
+        .hidden { display: none !important; }
+        .fallback-error {
+            position: fixed;
+            left: 12px;
+            right: 12px;
+            bottom: 12px;
+            z-index: 9999;
+            background: #fee2e2;
+            color: #7f1d1d;
+            border: 1px solid #fca5a5;
+            border-radius: 8px;
+            padding: 12px;
+            font: 14px Arial, sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen transition-colors duration-300">
+    <div class="min-h-screen lg:flex">
+        <aside class="app-sidebar bg-primary-light dark:bg-primary-dark text-white lg:w-64 p-4 lg:min-h-screen">
+            <div class="flex items-center justify-between lg:block">
+                <div class="flex items-center gap-3 mb-0 lg:mb-6">
+                    <span class="brand-mark bg-white text-blue-600 font-bold rounded px-2 py-1">BF</span>
+                    <div>
+                        <h1 class="text-xl font-bold">Brasa & Fogo</h1>
+                        <p class="text-xs text-blue-100">Operacao ao vivo</p>
+                    </div>
+                </div>
+                <button id="toggleTheme" class="bg-yellow-500 dark:bg-indigo-700 hover:bg-yellow-600 dark:hover:bg-indigo-800 px-3 py-2 rounded lg:hidden">
+                    <i class="fas fa-sun"></i>
+                </button>
+            </div>
+
+            <nav class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-1 gap-2 mt-4 lg:mt-0">
+                <button class="nav-btn bg-blue-700/30 hover:bg-blue-700/50 rounded px-3 py-3 text-left" data-view="painel"><i class="fas fa-chart-line mr-2"></i>Painel</button>
+                <button class="nav-btn bg-blue-700/30 hover:bg-blue-700/50 rounded px-3 py-3 text-left" data-view="pedidos"><i class="fas fa-clipboard-list mr-2"></i>Pedidos</button>
+                <button class="nav-btn bg-blue-700/30 hover:bg-blue-700/50 rounded px-3 py-3 text-left" data-view="mesas"><i class="fas fa-chair mr-2"></i>Mesas</button>
+                <button class="nav-btn bg-blue-700/30 hover:bg-blue-700/50 rounded px-3 py-3 text-left" data-view="delivery"><i class="fas fa-motorcycle mr-2"></i>Delivery</button>
+                <button class="nav-btn bg-blue-700/30 hover:bg-blue-700/50 rounded px-3 py-3 text-left" data-view="produtos"><i class="fas fa-utensils mr-2"></i>Produtos</button>
+                <button class="nav-btn bg-blue-700/30 hover:bg-blue-700/50 rounded px-3 py-3 text-left" data-view="estoque"><i class="fas fa-boxes mr-2"></i>Estoque</button>
+                <button class="nav-btn bg-blue-700/30 hover:bg-blue-700/50 rounded px-3 py-3 text-left" data-view="relatorios"><i class="fas fa-table mr-2"></i>Relatorios</button>
+                <button class="nav-btn bg-blue-700/30 hover:bg-blue-700/50 rounded px-3 py-3 text-left" data-view="fiscal"><i class="fas fa-file-invoice-dollar mr-2"></i>Fiscal - Dev</button>
+            </nav>
+
+            <div class="hidden lg:flex gap-2 mt-6">
+                <button id="toggleThemeDesktop" class="bg-yellow-500 dark:bg-indigo-700 hover:bg-yellow-600 dark:hover:bg-indigo-800 px-3 py-2 rounded flex-1">
+                    <i class="fas fa-sun mr-2"></i>Tema
+                </button>
+                <button id="logoutBtn" class="bg-red-500 hover:bg-red-600 px-3 py-2 rounded flex-1">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Sair
+                </button>
+            </div>
+            <div id="usuarioAtualBadge" class="mt-4 rounded border border-white/20 p-3 text-sm text-blue-50"></div>
+        </aside>
+
+        <main class="flex-1 p-4 lg:p-6">
+            <header class="app-header flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 mb-6">
+                <div>
+                    <p class="text-sm font-semibold text-blue-600 dark:text-blue-300 uppercase">Gestao da churrascaria</p>
+                    <h2 id="viewTitle" class="text-3xl font-bold text-gray-900 dark:text-white">Painel</h2>
+                </div>
+                <div id="mesaContexto" class="mesa-context-card flex-1 xl:max-w-2xl"></div>
+                <div class="control-shell flex flex-wrap items-center gap-3">
+                    <select id="mesaSelecionada" class="border rounded px-3 py-2 dark:bg-gray-800 dark:text-white dark:border-gray-700"></select>
+                    <button id="novoPedidoBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                        <i class="fas fa-plus mr-2"></i>Novo pedido
+                    </button>
+                </div>
+            </header>
+
+            <section id="painelView" class="view-section space-y-6"></section>
+            <section id="pedidosView" class="view-section hidden space-y-6"></section>
+            <section id="mesasView" class="view-section hidden space-y-6"></section>
+            <section id="deliveryView" class="view-section hidden space-y-6"></section>
+            <section id="produtosView" class="view-section hidden space-y-6"></section>
+            <section id="estoqueView" class="view-section hidden space-y-6"></section>
+            <section id="relatoriosView" class="view-section hidden space-y-6"></section>
+            <section id="fiscalView" class="view-section hidden space-y-6"></section>
+        </main>
+    </div>
+
+    <div id="modalPedido" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="modal-panel bg-white dark:bg-gray-800 rounded-lg p-6 max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold dark:text-white">Novo pedido</h3>
+                <button id="closePedidoModal" class="text-gray-500 hover:text-gray-700 dark:text-gray-300"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="md:col-span-2">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                        <div>
+                            <label for="categoriaSelect" class="block mb-2 dark:text-white">Categoria</label>
+                            <select id="categoriaSelect" class="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-white dark:border-gray-600"></select>
+                        </div>
+                        <div>
+                            <label for="buscaProduto" class="block mb-2 dark:text-white">Buscar produto</label>
+                            <input id="buscaProduto" type="search" class="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-white dark:border-gray-600" placeholder="Picanha, suco, farofa...">
+                        </div>
+                    </div>
+                    <div id="produtosPedidoContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                </div>
+                <aside class="premium-card bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
+                    <h4 class="font-bold mb-3 dark:text-white">Itens do pedido</h4>
+                    <div id="carrinhoPedido" class="space-y-2 mb-4"></div>
+                    <div class="font-bold text-right dark:text-white" id="totalPedido">R$ 0,00</div>
+                    <button id="confirmarPedidoBtn" class="w-full mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                        <i class="fas fa-check mr-2"></i>Realizar pedido
+                    </button>
+                </aside>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalFecharMesa" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="modal-panel bg-white dark:bg-gray-800 rounded-lg p-6 max-w-lg w-full">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold dark:text-white">Conferencia e pagamento</h3>
+                <button id="closeFecharMesaModal" class="text-gray-500 hover:text-gray-700 dark:text-gray-300"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <form id="formFecharMesa" class="space-y-4">
+                <div>
+                    <label for="metodoPagamento" class="block mb-2 dark:text-white">Metodo de pagamento</label>
+                    <select id="metodoPagamento" class="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                        <option value="Cartao de Credito">Cartao de Credito</option>
+                        <option value="Dinheiro">Dinheiro</option>
+                        <option value="Pix">Pix</option>
+                    </select>
+                </div>
+                <label class="flex items-center gap-2 dark:text-white">
+                    <input type="checkbox" id="incluirCover"> Taxa de cover: sim
+                </label>
+                <label class="flex items-center gap-2 dark:text-white">
+                    <input type="checkbox" id="incluirServico"> 10%: sim
+                </label>
+                <textarea id="observacoes" class="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-white dark:border-gray-600" rows="3" placeholder="Observacoes"></textarea>
+                <div id="resumoFechamento" class="bg-gray-100 dark:bg-gray-700 rounded p-3 dark:text-white"></div>
+                <button type="button" id="imprimirConferenciaBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                    <i class="fas fa-print mr-2"></i>Imprimir recibo de conferencia
+                </button>
+                <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+                    <i class="fas fa-check-circle mr-2"></i>Pagamento realizado e fechar mesa
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalPedidosMesa" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="modal-panel bg-white dark:bg-gray-800 rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <p class="text-sm font-semibold text-blue-600 dark:text-blue-300 uppercase">Pedidos da mesa</p>
+                    <h3 id="tituloPedidosMesa" class="text-2xl font-bold dark:text-white">Mesa</h3>
+                </div>
+                <button id="closePedidosMesaModal" class="text-gray-500 hover:text-gray-700 dark:text-gray-300"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div id="conteudoPedidosMesa" class="space-y-3"></div>
+        </div>
+    </div>
+
+    <div id="toastStack" class="toast-stack"></div>
+    <script>
+        window.addEventListener('error', function (event) {
+            var box = document.createElement('div');
+            box.className = 'fallback-error';
+            box.textContent = 'Erro ao carregar painel: ' + event.message + '. Abra /mobile-test.html para diagnostico.';
+            document.body.appendChild(box);
+        });
+    </script>
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

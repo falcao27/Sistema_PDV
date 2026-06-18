@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recibo - Brasa & Fogo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-lg">
+        <div id="reciboContent" class="mb-4"></div>
+        <button id="imprimirRecibo" class="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600">
+            Imprimir Recibo
+        </button>
+    </div>
+
+    <script>
+        const money = (value) => `R$ ${Number(value || 0).toFixed(2)}`;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const reciboContent = document.getElementById('reciboContent');
+            const dadosReciboString = localStorage.getItem('dadosRecibo');
+
+            if (!dadosReciboString) {
+                reciboContent.innerHTML = '<p class="text-red-500">Erro: Dados do recibo nao encontrados.</p>';
+                return;
+            }
+
+            try {
+                const reciboData = JSON.parse(dadosReciboString);
+                const totalAbatido = (reciboData.pagamentosParciais || []).reduce((acc, val) => acc + val, 0);
+                const valorPendente = reciboData.total - totalAbatido;
+                const titulo = reciboData.tipo === 'conferencia' ? 'Recibo de Conferencia' : 'Recibo';
+                const metodoPagamento = reciboData.metodoPagamento && reciboData.metodoPagamento !== 'A definir'
+                    ? `<p class="mb-2 text-gray-600"><strong>Metodo de Pagamento:</strong> ${reciboData.metodoPagamento}</p>`
+                    : '<p class="mb-2 text-gray-600"><strong>Pagamento:</strong> A definir</p>';
+
+                reciboContent.innerHTML = `
+                    <h1 class="text-2xl font-bold mb-4 text-gray-800">${titulo} - ${reciboData.numeroMesa}</h1>
+                    <p class="mb-2 text-gray-600"><strong>Data e Hora:</strong> ${new Date().toLocaleString()}</p>
+                    ${metodoPagamento}
+
+                    <h2 class="text-xl font-semibold mt-4 mb-2 text-gray-700">Itens Consumidos</h2>
+                    <table class="w-full mb-4 bg-gray-50 rounded-lg">
+                        <thead>
+                            <tr class="bg-gray-200 text-gray-600">
+                                <th class="text-left p-2">Item</th>
+                                <th class="text-right p-2">Qtd</th>
+                                <th class="text-right p-2">Preco</th>
+                                <th class="text-right p-2">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${reciboData.carrinho.map((item) => `
+                                <tr class="border-b">
+                                    <td class="p-2 text-gray-700">${item.nome}</td>
+                                    <td class="text-right p-2 text-gray-700">${item.quantidade}</td>
+                                    <td class="text-right p-2 text-gray-700">${money(item.preco)}</td>
+                                    <td class="text-right p-2 text-gray-700">${money(item.preco * item.quantidade)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+
+                    <div class="mt-4">
+                        <p class="text-gray-700"><strong>Subtotal:</strong> ${money(reciboData.subtotal)}</p>
+                        ${reciboData.cover > 0 ? `<p class="text-gray-700"><strong>Taxa de cover:</strong> ${money(reciboData.cover)}</p>` : ''}
+                        ${reciboData.servico > 0 ? `<p class="text-gray-700"><strong>Servico (10%):</strong> ${money(reciboData.servico)}</p>` : ''}
+                        <p class="text-xl font-bold mt-2 text-gray-800"><strong>Total:</strong> ${money(reciboData.total)}</p>
+                        ${totalAbatido > 0 ? `
+                            <p class="text-green-600 mt-2"><strong>Pagamento Parcial:</strong> ${money(totalAbatido)}</p>
+                            <p class="text-red-600 mt-2"><strong>Valor Pendente:</strong> ${money(valorPendente)}</p>
+                        ` : ''}
+                    </div>
+
+                    ${reciboData.observacoes ? `
+                        <h2 class="text-xl font-semibold mt-4 mb-2 text-gray-700">Observacoes</h2>
+                        <p class="text-gray-600">${reciboData.observacoes}</p>
+                    ` : ''}
+                `;
+            } catch (error) {
+                reciboContent.innerHTML = '<p class="text-red-500">Erro: Dados do recibo nao encontrados ou invalidos.</p>';
+            }
+
+            document.getElementById('imprimirRecibo').addEventListener('click', () => window.print());
+            localStorage.removeItem('dadosRecibo');
+        });
+    </script>
+</body>
+</html>

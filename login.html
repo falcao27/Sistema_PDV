@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Brasa & Fogo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <script>
+        if (window.tailwind) tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#3B82F6',
+                            dark: '#2563EB'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+        }
+        main {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+        }
+        input, button {
+            box-sizing: border-box;
+        }
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen flex items-center justify-center px-4 transition-colors duration-300">
+    <main class="w-full max-w-sm bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Brasa & Fogo</h1>
+            <p class="text-gray-600 dark:text-gray-300 mt-1">Acesse o sistema de pedidos</p>
+        </div>
+
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label for="usuario" class="block mb-2 text-gray-700 dark:text-white">Usuario</label>
+                <input id="usuario" type="text" autocomplete="username" required class="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-white dark:border-gray-600" placeholder="admin">
+            </div>
+            <div>
+                <label for="senha" class="block mb-2 text-gray-700 dark:text-white">Senha</label>
+                <input id="senha" type="password" autocomplete="current-password" required class="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-white dark:border-gray-600" placeholder="admin">
+            </div>
+            <p id="loginErro" class="hidden text-sm text-red-600">Usuario ou senha invalidos.</p>
+            <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+                <i class="fas fa-sign-in-alt mr-2"></i>Entrar
+            </button>
+        </form>
+        <div class="mt-5 rounded border dark:border-gray-700 p-3 text-sm text-gray-600 dark:text-gray-300">
+            <p class="font-semibold text-gray-800 dark:text-white mb-2">Contas de teste</p>
+            <p>balcao / balcao123</p>
+            <p>garconete1 / mesa123</p>
+            <p>garconete2 / mesa123</p>
+            <p>garconete3 / mesa123</p>
+            <p>garconete4 / mesa123</p>
+            <p>garconete5 / mesa123</p>
+            <p>admin / admin123</p>
+        </div>
+    </main>
+
+    <script>
+        if (localStorage.getItem('darkMode') === 'true' ||
+            (!('darkMode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const usuario = document.getElementById('usuario').value.trim();
+            const senha = document.getElementById('senha').value;
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario, senha })
+                });
+
+                if (!response.ok) throw new Error('login invalido');
+
+                const data = await response.json();
+                localStorage.setItem('loggedIn', 'true');
+                localStorage.setItem('usuarioLogado', JSON.stringify(data.user));
+                window.location.href = 'pedidos.html';
+                return;
+            } catch (error) {
+                if (usuario === 'admin' && senha === 'admin') {
+                    localStorage.setItem('loggedIn', 'true');
+                    localStorage.setItem('usuarioLogado', JSON.stringify({
+                        id: 1,
+                        usuario: 'admin',
+                        nome: 'Administrador',
+                        perfil: 'admin'
+                    }));
+                    window.location.href = 'pedidos.html';
+                    return;
+                }
+            }
+
+            document.getElementById('loginErro').classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>

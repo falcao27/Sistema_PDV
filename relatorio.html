@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório de Vendas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            light: '#3B82F6',
+                            dark: '#2563EB'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .dark .dark\:invert {
+            filter: invert(1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen transition-colors duration-300">
+    <nav class="bg-primary-light dark:bg-primary-dark p-4 text-white">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Cafeteria Alegria</h1>
+            <div class="flex items-center space-x-4">
+                <a href="index.html" class="bg-gray-500 hover:bg-gray-600 px-4 py-2 rounded">
+                    <i class="fas fa-home mr-2"></i>Início
+                </a>
+                <button id="toggleTheme" class="bg-yellow-500 dark:bg-indigo-600 hover:bg-yellow-600 dark:hover:bg-indigo-700 px-4 py-2 rounded">
+                    <i class="fas fa-sun dark:fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto mt-8 px-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4 dark:text-white">Relatório de Vendas</h2>
+            <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="formaPagamento" class="block mb-2 dark:text-white">Forma de Pagamento</label>
+                    <select id="formaPagamento" class="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                        <option value="">Todas</option>
+                        <option value="Cartão de Crédito">Cartão de Crédito</option>
+                        <option value="Dinheiro">Dinheiro</option>
+                        <option value="Pix">Pix</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="dataRelatorio" class="block mb-2 dark:text-white">Data</label>
+                    <input type="date" id="dataRelatorio" class="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                </div>
+                <div>
+                    <label for="numeroMesa" class="block mb-2 dark:text-white">Número da Mesa</label>
+                    <input type="number" id="numeroMesa" placeholder="Número da Mesa" class="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-white dark:border-gray-600">
+                </div>
+            </div>
+            <button id="filtrarRelatorio" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mb-6">
+                <i class="fas fa-search mr-2"></i>Filtrar
+            </button>
+
+            <div id="dashboardContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                <div class="bg-gray-200 dark:bg-gray-700 p-4 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold dark:text-white">Total de Vendas</h3>
+                    <p id="totalVendas" class="text-2xl font-bold mt-2 dark:text-white">R$ 0,00</p>
+                </div>
+                <div class="bg-gray-200 dark:bg-gray-700 p-4 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold dark:text-white">Total de Mesas</h3>
+                    <p id="totalMesas" class="text-2xl font-bold mt-2 dark:text-white">0</p>
+                </div>
+                <div class="bg-gray-200 dark:bg-gray-700 p-4 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold dark:text-white">Forma de Pagamento Mais Usada</h3>
+                    <p id="pagamentoMaisUsado" class="text-2xl font-bold mt-2 dark:text-white">N/A</p>
+                </div>
+            </div>
+
+            <div id="relatorioContent" class="mt-8">
+                <canvas id="graficoRelatorio"></canvas>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Função para alternar entre os modos claro e escuro
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+        }
+
+        // Verifica a preferência salva do usuário
+        if (localStorage.getItem('darkMode') === 'true' || 
+            (!('darkMode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+
+        // Adiciona o evento de clique ao botão de alternar tema
+        document.getElementById('toggleTheme').addEventListener('click', toggleDarkMode);
+
+        // Inicializa o gráfico
+        const ctx = document.getElementById('graficoRelatorio').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Janeiro', 'Fevereiro', 'Março', 'Abril'],
+                datasets: [{
+                    label: 'Vendas',
+                    data: [12, 19, 3, 5],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
